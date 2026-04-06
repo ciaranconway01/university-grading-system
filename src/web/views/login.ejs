@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeDClass - Login </title>
+</head>
+
+<body>
+
+    <h2> HeDClass System</h2>
+
+    <% if (typeof error !=='undefined' ) { %>
+        <p>
+            <%=error %>
+        </p>
+        <% } %>
+
+            <form action="/login" method="POST">
+                <div>
+                    <label for "username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <br>
+                <div>
+                    <label for "password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <br>
+                <button type="submit">Log In</button>
+
+
+            </form>
+
+</body>
+
+</html>

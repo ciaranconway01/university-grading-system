@@ -2,6 +2,11 @@ import express from "express";
 import connection from "./db.js";
 import serverSession from 'express-session';
 
+
+// Routes
+import authenticationRoute from './routes/authentication.js';
+
+
 const app = express();
 const PORT = 3000;
 
@@ -19,11 +24,9 @@ app.use(serverSession(
 
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', req, res => {
-
-    res.render('login')
-});
 
 
+
+app.use('/', authenticationRoute);
 
 app.listen(PORT, () => { console.log('Server is running') });
