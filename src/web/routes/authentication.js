@@ -4,8 +4,14 @@ import connection from '../db.js'
 const router = express.Router();
 
 router.get('/', (req, res) => {
-
-    res.render('login')
+    if (req.session.isLoggedIn) {
+        res.render('dashboard', {
+            username: req.session.username,
+            role: req.session.role
+        });
+    } else {
+        res.render('login')
+    }
 });
 
 router.post('/login', async (req, res) => {
@@ -31,13 +37,9 @@ router.post('/login', async (req, res) => {
             req.session.username = user.username;
             req.session.role = user.role;
 
-            res.send(`
-    <h1> Welcome, ${user.username} </h1>
-<p> Your role is: ${user.role} </p>
-    ` );
 
+            res.redirect('/');
         } else {
-
             res.render('login', { error: "Invalid username or password." })
         };
 
@@ -47,6 +49,15 @@ router.post('/login', async (req, res) => {
         console.error("Error", error);
         res.status(500).send("Error during login")
     }
+});
+
+router.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error("Logout error:", err);
+        }
+        res.redirect('/');
+    });
 });
 
 
