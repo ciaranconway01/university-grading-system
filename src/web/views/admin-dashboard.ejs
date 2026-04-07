@@ -6,14 +6,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registry Admin</title>
 </head>
+
 <body>
-<h2>HeDClass - Registry Administration</h2>
-<nav>
-    User: <%= username %> | Role = <%=role %> |
-            <a href='/'> Main Dashboard </a>
-            <a href='/logout'> Log Out</a>
-</nav>
-<hr>
+    <h2>HeDClass - Registry Administration</h2>
+    <nav>
+        User: <%= username %> | Role = <%=role %> |
+                <a href='/'> Main Dashboard </a>
+                <a href='/logout'> Log Out</a>
+    </nav>
+    <hr>
+
+    <main>
+        <h3> Staff Management</h3>
+        <p> Use this form to create a new Classification Officer.</p>
+
+        <form action="/admin/add-officer" method="POST">
+            <div>
+                <label> Officer Username</label><br>
+                <input type="text" name="new_username" required>
+            </div>
+            <br>
+
+            <div>
+                <label> Password</label> <br>
+                <input type=password" name="new_password" required>
+            </div>
+            <br>
+
+            <div>
+                <label> Assign to Programme</label> <br>
+                <select name="programme_id" required>
+                    <option value="1">BSc Computer Science</option>
+                    <option value="2"> BA Fine Art</option>
+                </select>
+            </div>
+            <br>
+            <button type="submit">Create Classification Officer</button>
+
+        </form>
+    </main>
 
 
 
