@@ -1,16 +1,20 @@
-import express from express;
+import express from 'express';
+import connection from '../db.js'
 
 const router = express.Router();
 
-const requireRegistryAdmin = (req, res) => {
-    if (!req.session.isLoggedIn) {
+router.get('/', (req, res) => {
+    if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
     }
-}
-if (req.session.role === 'registry_admin') {
-    res.send('Welcome')
-} else {
-    res.send('Access Denied: Registry Admins Only');
-}
+
+    res.render('admin-dashboard', {
+        username: req.session.username,
+        role: req.session.role
+    });
+});
+
+
+
 
 export default router;
