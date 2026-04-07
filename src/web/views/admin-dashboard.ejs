@@ -41,7 +41,35 @@
 
         <hr>
 
-        <h3>2. Delete Programme</h3>
+        <h3>2. Update Programme Rules</h3>
+        <p>Change the weightings for an existing degree.</p>
+        
+        <form action="/admin/update-programme" method="POST">
+            <div>
+                <label>Select Programme:</label><br>
+                <select name="programme_id" required>
+                    <% programmes.forEach(function(prog) { %>
+                        <option value="<%= prog.programme_id %>"><%= prog.name %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <br>
+            <div>
+                <label>New Year 2 Weighting:</label><br>
+                <input type="number" step="0.01" min="0" max="1" name="y2_weighting" required>
+            </div>
+            <br>
+            <div>
+                <label>New Year 3 Weighting:</label><br>
+                <input type="number" step="0.01" min="0" max="1" name="y3_weighting" required>
+            </div>
+            <br>
+            <button type="submit">Update Weightings</button>
+        </form>
+
+        <hr>
+
+        <h3>3. Delete Programme</h3>
         <p style="color: red;"><strong>Warning:</strong> Deleting a programme will also remove all officers assigned to
             it.</p>
 
@@ -65,7 +93,7 @@
 
         <hr>
 
-        <h3> 3. Create New Classification Officer.</h3>
+        <h3> 4. Create New Classification Officer.</h3>
         <p> Use this form to create a new Classification Officer.</p>
 
 
@@ -98,7 +126,7 @@
 
         <hr>
 
-        <h3> 4. Assign Existing Officers</h3>
+        <h3> 5. Assign Existing Officers</h3>
         <p> Give an existing officer access to another programme.</p>
 
         <form action="/admin/assign-officer" method="POST">
@@ -130,7 +158,7 @@
         </form>
 
         <hr>
-        <h3>5. Delete Classification Officer</h3>
+        <h3>6. Delete Classification Officer</h3>
         <p style="color: red;"><strong>Warning:</strong> This permanently deletes the officer's account and removes
             their access to the system.</p>
 

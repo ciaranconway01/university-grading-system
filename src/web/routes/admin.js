@@ -110,6 +110,34 @@ router.post('/add-programme', async (req, res) => {
     }
 });
 
+router.post('/update-programme', async (req, res) => {
+    if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
+        return res.redirect('/');
+    }
+
+    const { programme_id, y2_weighting, y3_weighting } = req.body;
+    const y2 = parseFloat(y2_weighting);
+    const y3 = parseFloat(y3_weighting);
+    const total = Math.round((y2 + y3) * 100) / 100;
+
+    if (total !== 1.0) {
+        return res.status(400).send(`Error: New weightings equal ${total}. They must equal 1.0.`);
+    }
+
+    try {
+        const sql = `UPDATE programmes SET y2_weighting = ?, y3_weighting = ? WHERE programme_id = ?`;
+        await connection.promise().query(sql, [y2, y3, programme_id]);
+
+        res.redirect('/admin');
+    } catch (error) {
+        console.error("Error updating programme:", error);
+        res.status(500).send("Database Error: Could not update weighting.");
+    }
+});
+
+
+
+
 router.post('/delete-programme', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
@@ -153,5 +181,8 @@ router.post('/delete-officer', async (req, res) => {
         res.status(500).send("Database Error: Could not delete the officer.");
     }
 });
+
+
+
 
 export default router;
