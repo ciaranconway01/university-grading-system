@@ -41,7 +41,27 @@
 
         <hr>
 
-        <h3> 2. Create New Classification Officer.</h3>
+        <h3>2. Delete Programme</h3>
+        <p style="color: red;"><strong>Warning:</strong> Deleting a programme will also remove all officers assigned to it.</p>
+        
+        <form action="/admin/delete-programme" method="POST">
+            <div>
+                <label>Select Programme to Delete:</label><br>
+                <select name="programme_id" required>
+                    <% programmes.forEach(function(prog) { %>
+                        <option value="<%= prog.programme_id %>"><%= prog.name %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <br>
+            <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                Permanently Delete Programme
+            </button>
+        </form>
+
+        <hr>
+
+        <h3> 3. Create New Classification Officer.</h3>
         <p> Use this form to create a new Classification Officer.</p>
 
 
@@ -74,7 +94,7 @@
 
         <hr>
 
-        <h3> 3. Assign Existing Officers</h3>
+        <h3> 4. Assign Existing Officers</h3>
         <p> Give an existing officer access to another programme.</p>
 
         <form action="/admin/assign-officer" method="POST">

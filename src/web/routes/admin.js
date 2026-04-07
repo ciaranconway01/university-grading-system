@@ -97,11 +97,7 @@ router.post('/add-programme', async (req, res) => {
 <a href="/admin"> Click here to go back </a>
 
         `);
-
     }
-
-
-
 
     try {
         const sql = `INSERT INTO programmes (name, y2_weighting, y3_weighting) VALUES (?, ?, ?)`;
@@ -114,6 +110,26 @@ router.post('/add-programme', async (req, res) => {
     }
 });
 
+router.post('/delete-programme', async (req, res) => {
+    if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
+        return res.redirect('/');
+    }
+
+    const programmeId = req.body.programme_id;
+
+    try {const deleteAssignmentsSql = `DELETE FROM officer_assignments WHERE programme_id = ?`;
+        await connection.promise().query(deleteAssignmentsSql, [programmeId]);
+
+        const deleteProgrammeSql = `DELETE FROM programmes WHERE programme_id = ?`;
+        await connection.promise().query(deleteProgrammeSql, [programmeId]);
+
+        res.redirect('/admin');
+        
+    } catch (error) {
+        console.error("Error deleting programme:", error);
+        res.status(500).send("Database Error: Could not delete the programme.");
+    }
+});
 
 
 export default router;
