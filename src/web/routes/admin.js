@@ -117,19 +117,41 @@ router.post('/delete-programme', async (req, res) => {
 
     const programmeId = req.body.programme_id;
 
-    try {const deleteAssignmentsSql = `DELETE FROM officer_assignments WHERE programme_id = ?`;
+    try {
+        const deleteAssignmentsSql = `DELETE FROM officer_assignments WHERE programme_id = ?`;
         await connection.promise().query(deleteAssignmentsSql, [programmeId]);
 
         const deleteProgrammeSql = `DELETE FROM programmes WHERE programme_id = ?`;
         await connection.promise().query(deleteProgrammeSql, [programmeId]);
 
         res.redirect('/admin');
-        
+
     } catch (error) {
         console.error("Error deleting programme:", error);
         res.status(500).send("Database Error: Could not delete the programme.");
     }
 });
 
+router.post('/delete-officer', async (req, res) => {
+    if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
+        return res.redirect('/');
+    }
+
+    const userId = req.body.user_id;
+
+    try {
+        const deleteAssignmentsSql = `DELETE FROM officer_assignments WHERE user_id = ?`;
+        await connection.promise().query(deleteAssignmentsSql, [userId]);
+
+        const deleteUserSql = `DELETE FROM users WHERE user_id = ? AND role = 'classification_officer'`;
+        await connection.promise().query(deleteUserSql, [userId]);
+
+        res.redirect('/admin');
+
+    } catch (error) {
+        console.error("Error deleting officer:", error);
+        res.status(500).send("Database Error: Could not delete the officer.");
+    }
+});
 
 export default router;

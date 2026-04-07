@@ -11,7 +11,7 @@
     <h2>HeDClass - Registry Administration</h2>
     <nav>
         User: <%= username %> | Role = <%=role %> |
-                <a href='/'> Main Dashboard | </a> 
+                <a href='/'> Main Dashboard | </a>
                 <a href='/logout'> Log Out</a>
     </nav>
     <hr>
@@ -42,19 +42,23 @@
         <hr>
 
         <h3>2. Delete Programme</h3>
-        <p style="color: red;"><strong>Warning:</strong> Deleting a programme will also remove all officers assigned to it.</p>
-        
+        <p style="color: red;"><strong>Warning:</strong> Deleting a programme will also remove all officers assigned to
+            it.</p>
+
         <form action="/admin/delete-programme" method="POST">
             <div>
                 <label>Select Programme to Delete:</label><br>
                 <select name="programme_id" required>
                     <% programmes.forEach(function(prog) { %>
-                        <option value="<%= prog.programme_id %>"><%= prog.name %></option>
-                    <% }); %>
+                        <option value="<%= prog.programme_id %>">
+                            <%= prog.name %>
+                        </option>
+                        <% }); %>
                 </select>
             </div>
             <br>
-            <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+            <button type="submit"
+                style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">
                 Permanently Delete Programme
             </button>
         </form>
@@ -124,6 +128,32 @@
 
             <button type="submit">Assign to Additional Programme</button>
         </form>
+
+        <hr>
+        <h3>5. Delete Classification Officer</h3>
+        <p style="color: red;"><strong>Warning:</strong> This permanently deletes the officer's account and removes
+            their access to the system.</p>
+
+        <form action="/admin/delete-officer" method="POST">
+            <div>
+                <label>Select Officer to Delete:</label><br>
+                <select name="user_id" required>
+                    <% officers.forEach(function(officer) { %>
+                        <option value="<%= officer.user_id %>">
+                            <%= officer.username %>
+                        </option>
+                        <% }); %>
+                </select>
+            </div>
+            <br>
+            <button type="submit"
+                style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                Permanently Delete Officer
+            </button>
+        </form>
+
+        <hr>
+
 
     </main>
 
