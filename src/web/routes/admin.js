@@ -83,8 +83,24 @@ router.post('/add-programme', async (req, res) => {
     }
 
     const programmeName = req.body.programme_name;
-    const y2Weighting = req.body.y2_weighting;
-    const y3Weighting = req.body.y3_weighting;
+
+
+    const y2Weighting = parseFloat(req.body.y2_weighting);
+    const y3Weighting = parseFloat(req.body.y3_weighting);
+
+    const totalWeight = Math.round((y2Weighting + y3Weighting) * 100) / 100;
+
+    if (totalWeight !== 1.0) {
+        return res.status(400).send(
+            ` <h2> Programme Error </h2>
+<p> Your total weightings add up to ${totalWeight}. They must exactly equal 1.0 </p>
+<a href="/admin"> Click here to go back </a>
+
+        `);
+
+    }
+
+
 
 
     try {
