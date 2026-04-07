@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
         console.error("Error loading data:", error);
         res.status(500).send("Database Error");
     }
-} );
+});
 
 
 router.post('/add-officer', async (req, res) => {
@@ -57,11 +57,11 @@ router.post('/add-officer', async (req, res) => {
 });
 
 router.post('/assign-officer', async (req, res) => {
-if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
+    if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
     }
 
-    const userId = req.body.user_id; 
+    const userId = req.body.user_id;
     const programmeId = req.body.programme_id;
 
     try {
@@ -75,6 +75,29 @@ if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         res.status(500).send("Database Error: Officer might already be assigned here.");
     }
 });
+
+
+router.post('/add-programme', async (req, res) => {
+    if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
+        return res.redirect('/');
+    }
+
+    const programmeName = req.body.programme_name;
+    const y2Weighting = req.body.y2_weighting;
+    const y3Weighting = req.body.y3_weighting;
+
+
+    try {
+        const sql = `INSERT INTO programmes (name, y2_weighting, y3_weighting) VALUES (?, ?, ?)`;
+        await connection.promise().query(sql, [programmeName, y2Weighting, y3Weighting]);
+        res.redirect('/admin');
+
+    } catch (error) {
+        console.error("Error creating programme", error);
+        res.status(500).send("Database Error: Was not able to save the new programme.");
+    }
+});
+
 
 
 export default router;
