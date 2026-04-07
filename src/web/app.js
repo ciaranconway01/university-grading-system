@@ -24,9 +24,6 @@ app.use(serverSession(
 
 app.use(express.urlencoded({ extended: true }));
 
-
-
-
 app.use('/', authenticationRoute);
 
 app.listen(PORT, () => { console.log('Server is running') });

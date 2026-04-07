@@ -19,10 +19,7 @@ router.post('/login', async (req, res) => {
     const submittedUsername = req.body.username;
     const submittedPassword = req.body.password;
 
-
-
     try {
-
         const sql = `SELECT * FROM users WHERE username = ?`;
         const [rows] = await connection.promise().query(sql, [submittedUsername])
 
