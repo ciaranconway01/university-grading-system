@@ -17,8 +17,10 @@
     <hr>
 
     <main>
-        <h3> Staff Management</h3>
+
+        <h3> 1. Create New Classification Officer.</h3>
         <p> Use this form to create a new Classification Officer.</p>
+
 
         <form action="/admin/add-officer" method="POST">
             <div>
@@ -29,24 +31,58 @@
 
             <div>
                 <label> Password</label> <br>
-                <input type=password" name="new_password" required>
+                <input type="password" name="new_password" required>
             </div>
             <br>
 
             <div>
                 <label> Assign to Programme</label> <br>
                 <select name="programme_id" required>
-                    <option value="1">BSc Computer Science</option>
-                    <option value="2"> BA Fine Art</option>
+                    <% programmes.forEach(function(prog) { %>
+                        <option value="<%= prog.programme_id %>">
+                            <%= prog.name %>
+                        </option>
+                        <% }); %>
                 </select>
             </div>
             <br>
             <button type="submit">Create Classification Officer</button>
-
         </form>
+
+        <hr>
+
+        <h3> 2. Assign Existing Officers</h3>
+        <p> Give an existing officer access to another programme.</p>
+
+        <form action="/admin/assign-officer" method="POST">
+            <div>
+                <label>Select Existing Officer:</label><br>
+                <select name="user_id" required>
+                    <% officers.forEach(function(officer) { %>
+                        <option value="<%= officer.user_id %>">
+                            <%= officer.username %>
+                        </option>
+                        <% }); %>
+                </select>
+            </div>
+            <br>
+
+            <div>
+                <label>Select Programme to Assign:</label><br>
+                <select name="programme_id" required>
+                    <% programmes.forEach(function(prog) { %>
+                        <option value="<%= prog.programme_id %>">
+                            <%= prog.name %>
+                        </option>
+                        <% }); %>
+                </select>
+            </div>
+            <br>
+
+            <button type="submit">Assign to Additional Programme</button>
+        </form>
+
     </main>
-
-
 
 </body>
 
