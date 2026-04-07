@@ -8,25 +8,35 @@ router.get('/', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
     }
-
     try {
         const [programmes] = await connection.promise().query('SELECT * FROM programmes');
         const [officers] = await connection.promise().query('SELECT user_id, username FROM users WHERE role = "classification_officer"');
 
+        const joinSql = `
+            SELECT 
+                p.name AS programme_name, 
+                p.y2_weighting, 
+                p.y3_weighting, 
+                u.username AS officer_username
+            FROM programmes p
+            LEFT JOIN officer_assignments oa ON p.programme_id = oa.programme_id
+            LEFT JOIN users u ON oa.user_id = u.user_id
+            ORDER BY SUBSTRING(p.name, LOCATE(' ', p.name) + 1) ASC
+        `;
+        const [programmeRegister] = await connection.promise().query(joinSql);
 
         res.render('admin-dashboard', {
             username: req.session.username,
             role: req.session.role,
             programmes: programmes,
-            officers: officers
+            officers: officers,
+            programmeRegister: programmeRegister
         });
-    }
-    catch (error) {
-        console.error("Error loading data:", error);
+    } catch (error) {
+        console.error("Error loading list:", error);
         res.status(500).send("Database Error");
     }
 });
-
 
 router.post('/add-officer', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
@@ -181,7 +191,6 @@ router.post('/delete-officer', async (req, res) => {
         res.status(500).send("Database Error: Could not delete the officer.");
     }
 });
-
 
 
 

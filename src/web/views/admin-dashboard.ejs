@@ -43,14 +43,16 @@
 
         <h3>2. Update Programme Rules</h3>
         <p>Change the weightings for an existing degree.</p>
-        
+
         <form action="/admin/update-programme" method="POST">
             <div>
                 <label>Select Programme:</label><br>
                 <select name="programme_id" required>
                     <% programmes.forEach(function(prog) { %>
-                        <option value="<%= prog.programme_id %>"><%= prog.name %></option>
-                    <% }); %>
+                        <option value="<%= prog.programme_id %>">
+                            <%= prog.name %>
+                        </option>
+                        <% }); %>
                 </select>
             </div>
             <br>
@@ -181,6 +183,48 @@
         </form>
 
         <hr>
+
+        <h3>7. Programme & Staff Directory</h3>
+        <p>Current overview of all degrees, weightings, and assigned personnel.</p>
+
+        <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th>Programme Name</th>
+                    <th>Year 2 Weighting</th>
+                    <th>Year 3 Weighting</th>
+                    <th>Assigned Officer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (programmeRegister.length> 0) { %>
+                    <% programmeRegister.forEach(function(row) { %>
+                        <tr>
+                            <td><strong>
+                                    <%= row.programme_name %>
+                                </strong></td>
+                            <td>
+                                <%= Math.round(row.y2_weighting * 100) %>%
+                            </td>
+                            <td>
+                                <%= Math.round(row.y3_weighting * 100) %>%
+                            </td>
+                            <td>
+                                <% if (row.officer_username) { %>
+                                    <%= row.officer_username %>
+                                        <% } else { %>
+                                            Unassigned
+                                            <% } %>
+                            </td>
+                        </tr>
+                        <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4">No programmes found in system.</td>
+                                </tr>
+                                <% } %>
+            </tbody>
+        </table>
 
 
     </main>
