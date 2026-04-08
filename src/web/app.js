@@ -7,6 +7,7 @@ import serverSession from 'express-session';
 // Routes
 import authenticationRoute from './routes/authentication.js';
 import adminRoutes from './routes/admin.js'
+import officerRoutes from './routes/officer.js'
 
 const app = express();
 const PORT = 3000;
@@ -26,6 +27,7 @@ app.use(serverSession(
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/', authenticationRoute);
-app.use('/admin', adminRoutes)
+app.use('/admin', adminRoutes);
+app.use('/officer', officerRoutes);
 
 app.listen(PORT, () => { console.log('Server is running') });
