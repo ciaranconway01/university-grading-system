@@ -33,6 +33,7 @@ router.post('/login', async (req, res) => {
             req.session.isLoggedIn = true;
             req.session.username = user.username;
             req.session.role = user.role;
+            req.session.user_id = user.user_id;
 
 
             res.redirect('/');

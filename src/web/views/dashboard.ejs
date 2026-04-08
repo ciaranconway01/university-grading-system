@@ -10,11 +10,17 @@
 <body>
     <header>
         <h2> HeDClass Dashboard</h2>
-        <nav>
-            <%= username %> | <%= role %> | 
-            <a href = "/admin" > Registry Admin Area</a> |
-            <a href="/logout"> Log Out</a>
-        </nav>
+     <nav>
+        User: <%= username %> | Role: <%= role %> | 
+        
+        <% if (role === 'registry_admin') { %>
+            <a href='/admin'>Registry Admin Area</a> |
+        <% } else if (role === 'classification_officer') { %>
+            <a href='/officer'>Officer Workspace</a> |
+        <% } %>
+
+        <a href='/logout'>Log Out</a>
+    </nav>
         <hr>
     </header>
     <main>

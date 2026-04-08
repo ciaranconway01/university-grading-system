@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classification Officer Dashboard</title>
+</head>
+
+<body>
+    <h2> HeDClass - Classification Officer</h2>
+    <nav>
+        User: <%= username %> | Role = Classification Officer |
+            <a href='/logout'> Log Out</a>
+    </nav>
+    <hr>
+
+    <main>
+        <h3>1. Select Cohort</h3>
+        <p>Choose an assigned programme to view.</p>
+
+        <div>
+            <label>Select Programme:</label><br>
+            <select id="programmeSelect" style="padding: 5px; font-size: 16px;">
+                <option value="">-- Choose a Programme --</option>
+                <% programmes.forEach(function(prog) { %>
+                    <option value="<%= prog.programme_id %>">
+                        <%= prog.name %>
+                    </option>
+                    <% }); %>
+            </select>
+        </div>
+
+        <hr>
+
+        <h3>2. Cohort Data Management</h3>
+        <p>Current list of students for the selected programme.</p>
+
+        <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th>Student No.</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Proposed Class</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody">
+                <tr>
+                    <td colspan="5" style="text-align: center; color: gray;">
+                        <em>Please select a programme from the dropdown above to load candidates.</em>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        const dropdown = document.getElementById('programmeSelect');
+        const tableBody = document.getElementById('studentTableBody');
+
+        dropdown.addEventListener('change', async function () {
+            const programmeId = this.value;
+
+            if (!programmeId) {
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: gray;"><em>Please select a programme from the dropdown above to load candidates.</em></td></tr>';
+                return;
+            }
+
+
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><strong>Loading student data...</strong></td></tr>';
+
+            try {
+                const response = await fetch('/officer/api/students/' + programmeId);
+                const students = await response.json();
+                if (students.error) {
+                    tableBody.innerHTML = `<tr><td colspan="5" style="color: red;">Error: ${students.error}</td></tr>`;
+                    return;
+                }
+
+                if (students.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No students found in this cohort.</td></tr>';
+                    return;
+                }
+
+                let htmlRows = '';
+                students.forEach(student => {
+                    htmlRows += `
+                        <tr>
+                            <td>${student.student_number}</td>
+                            <td>${student.first_name}</td>
+                            <td>${student.last_name}</td>
+                            <td><strong>${student.calculated_classification || 'Pending'}</strong></td>
+                            <td>
+                                <button disabled>Review Grades</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = htmlRows;
+            } catch (error) {
+                console.error("API Fetch Error:", error);
+                tableBody.innerHTML = '<tr><td colspan="5" style="color: red;">A network error occurred while loading data.</td></tr>';
+            }
+        });
+
+    </script>
+
+
+
+</body>
+
+</html>
