@@ -116,5 +116,32 @@ let proposedClass = "Fail";
     }
 });
 
+router.post('/override/:student_id', async (req, res) => {
+    if (!req.session.isLoggedIn || req.session.role !== 'classification_officer') {
+        return res.redirect('/');
+    }
+    try {
+        const studentId = req.params.student_id;
+        const newClassification = req.body.override_classification;
+        const rationale = req.body.rationale;
+
+        const updateSql = `
+            UPDATE students 
+            SET manual_override_classification = ?, decision_rationale = ? 
+            WHERE student_id = ?
+        `;
+
+        await connection.promise().query(updateSql, [newClassification, rationale, studentId]);
+
+        res.redirect('/officer/review/' + studentId);
+
+    } catch (error) {
+        console.error("Error saving override:", error);
+        res.status(500).send("Error");
+    }
+});
+
+
+
 
 export default router;

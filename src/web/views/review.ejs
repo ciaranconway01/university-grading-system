@@ -19,6 +19,14 @@
             <h3>Candidate Profile: <%= student.first_name %> <%= student.last_name %> (<%= student.student_number %>)</h3>
             <p><strong>Programme:</strong> <%= student.programme_name %></p>
             <p><strong>Programme Weighting:</strong> Year 2 (<%= Math.round(student.y2_weighting * 100) %>%) / Year 3 (<%= Math.round(student.y3_weighting * 100) %>%)</p>
+        <% if (student.manual_override_classification) { %>
+                <br>
+                <div>
+                    <strong> OVERRIDE APPLIED: <%= student.manual_override_classification %> </strong><br>
+                    <strong>Rationale:</strong> <em>"<%= student.decision_rationale %>"</em>
+                </div>
+            <% } %>
+        
         </div>
 
         <h3>Academic Record</h3>
@@ -67,6 +75,35 @@
             <h2 style="color: #0056b3;">Proposed Classification: <%= proposedClass %></h2>
         </div>
 
+        <hr>
+        
+        <h3>Manual Override & Decision Rationale</h3>
+        <p>Use this form to override the system's proposed classification due to extenuating circumstances or missing data.</p>
+        
+        <form action="/officer/override/<%= student.student_id %>" method="POST">
+            
+            <div>
+                <label>Override Classification To:</label><br>
+                <select name="override_classification" required>
+                    <option value="">-- Select New Classification --</option>
+                    <option value="First Class Honours (1st)">First Class Honours (1st)</option>
+                    <option value="Upper Second Class (2:1)">Upper Second Class (2:1)</option>
+                    <option value="Lower Second Class (2:2)">Lower Second Class (2:2)</option>
+                    <option value="Third Class Honours">Third Class Honours</option>
+                    <option value="Pass (Non-Honours)">Pass (Non-Honours)</option>
+                    <option value="Fail">Fail</option>
+                </select>
+            </div>
+            <br>
+
+            <div>
+                <label>Decision Rationale (Required):</label><br>
+                <textarea name="rationale" rows="4" cols="50"></textarea>
+            </div>
+            <br>
+
+            <button type="submit">Submit Manual Override</button>
+        </form>
     </main>
 </body>
 </html>
