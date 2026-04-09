@@ -92,9 +92,11 @@
                             <td>${student.first_name}</td>
                             <td>${student.last_name}</td>
                             <td><strong>${student.calculated_classification || 'Pending'}</strong></td>
-                            <td>
-                                <button disabled>Review Grades</button>
-                            </td>
+                           <td>
+        <a href="/officer/review/${student.student_id}">
+            <button style="cursor: pointer;">Review Grades</button>
+        </a>
+    </td>
                         </tr>
                     `;
                 });

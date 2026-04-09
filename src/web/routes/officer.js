@@ -51,4 +51,70 @@ router.get('/api/students/:programme_id', async (req, res) => {
 
 });
 
+router.get('/review/:student_id', async (req, res) => {
+    
+    if (!req.session.isLoggedIn || req.session.role !== 'classification_officer') {
+        return res.redirect('/');
+    }
+
+    try {
+        const studentId = req.params.student_id;
+        const studentSql = `
+            SELECT s.*, p.name as programme_name, p.y2_weighting, p.y3_weighting 
+            FROM students s
+            JOIN programmes p ON s.programme_id = p.programme_id
+            WHERE s.student_id = ?
+        `;
+        const [studentData] = await connection.promise().query(studentSql, [studentId]);
+        
+        if (studentData.length === 0) return res.status(404).send("Student not found");
+        const student = studentData[0];
+
+        const marksSql = 'SELECT * FROM module_results WHERE student_id = ?';
+        const [marks] = await connection.promise().query(marksSql, [studentId]);
+
+        let y2TotalMarks = 0, y2TotalCredits = 0;
+        let y3TotalMarks = 0, y3TotalCredits = 0;
+
+        marks.forEach(module => {let finalMark = module.is_resit ? Math.min(module.mark, 40) : module.mark;
+
+            if (module.academic_year === 2) {
+                y2TotalMarks += (finalMark * module.credits);
+                y2TotalCredits += module.credits;
+            } else if (module.academic_year === 3) {
+                y3TotalMarks += (finalMark * module.credits);
+                y3TotalCredits += module.credits;
+            }
+        });
+
+        let y2Avg = y2TotalCredits > 0 ? (y2TotalMarks / y2TotalCredits) : 0;
+        let y3Avg = y3TotalCredits > 0 ? (y3TotalMarks / y3TotalCredits) : 0;
+
+        let finalScore = (y2Avg * parseFloat(student.y2_weighting)) + (y3Avg * parseFloat(student.y3_weighting));
+
+let proposedClass = "Fail";
+        if (finalScore >= 70) proposedClass = "First Class Honours (1st)";
+        else if (finalScore >= 60) proposedClass = "Upper Second Class (2:1)";
+        else if (finalScore >= 50) proposedClass = "Lower Second Class (2:2)";
+        else if (finalScore >= 40) proposedClass = "Third Class Honours";
+
+        if (marks.length === 0) proposedClass = "Pending";
+
+        res.render('review', {
+            username: req.session.username,
+            student: student,
+            marks: marks,
+            y2Avg: y2Avg.toFixed(2),
+            y3Avg: y3Avg.toFixed(2),
+            finalScore: finalScore.toFixed(2),
+            proposedClass: proposedClass
+        });
+
+        } catch (error) {
+        console.error(error);
+        res.status(500).send("Error");
+    }
+});
+
+
 export default router;

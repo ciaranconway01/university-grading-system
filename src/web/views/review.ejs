@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review</title>
+</head>
+<body>
+    <h2>HeDClass - Candidate Review</h2>
+    <nav>
+        User: <%= username %> | Role = Classification Officer |
+        <a href='/officer'>Back to Dashboard</a> |
+        <a href='/logout'>Log Out</a>
+    </nav>
+    <hr>
+
+    <main>
+        <div style="background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
+            <h3>Candidate Profile: <%= student.first_name %> <%= student.last_name %> (<%= student.student_number %>)</h3>
+            <p><strong>Programme:</strong> <%= student.programme_name %></p>
+            <p><strong>Programme Weighting:</strong> Year 2 (<%= Math.round(student.y2_weighting * 100) %>%) / Year 3 (<%= Math.round(student.y3_weighting * 100) %>%)</p>
+        </div>
+
+        <h3>Academic Record</h3>
+        <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th>Academic Year</th>
+                    <th>Module Name</th>
+                    <th>Credits</th>
+                    <th>Raw Mark</th>
+                    <th>Resit?</th>
+                    <th>Effective Mark (Capped at 40)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (marks.length > 0) { %>
+                    <% marks.forEach(function(m) { %>
+                        <tr>
+                            <td>Year <%= m.academic_year %></td>
+                            <td><%= m.module_name %></td>
+                            <td><%= m.credits %></td>
+                            <td><%= m.mark %></td>
+                            <td><%= m.is_resit ? 'Yes' : 'No' %></td>
+                            <td>
+                                <strong><%= m.is_resit && m.mark > 40 ? '40 (Capped)' : m.mark %></strong>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6">No marks recorded for this candidate.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <br>
+        
+        <div style="border: 2px solid #0056b3; padding: 15px; background-color: #e6f2ff;">
+            <h3 style="margin-top: 0; color: #0056b3;">System Calculated Outcome</h3>
+            <ul>
+                <li><strong>Year 2 Average:</strong> <%= y2Avg %>%</li>
+                <li><strong>Year 3 Average:</strong> <%= y3Avg %>%</li>
+                <li><strong>Final Weighted Score:</strong> <%= finalScore %>%</li>
+            </ul>
+            <h2 style="color: #0056b3;">Proposed Classification: <%= proposedClass %></h2>
+        </div>
+
+    </main>
+</body>
+</html>
