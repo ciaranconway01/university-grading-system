@@ -56,7 +56,47 @@
         </table>
     </main>
 
-    <script>
+    <hr>
+
+        <h3>3. Enroll New Candidate</h3>
+        <p>Manually add a new student to an assigned cohort.</p>
+        
+        <form action="/officer/add-student" method="POST">
+            <div>
+                <label>Select Programme:</label><br>
+                <select name="programme_id" required>
+                    <option value="">-- Choose Programme --</option>
+                    <% programmes.forEach(function(prog) { %>
+                        <option value="<%= prog.programme_id %>">
+                            <%= prog.name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+            <br>
+
+            <div>
+                <label>Student Number:</label><br>
+                <input type="text" name="student_number" required>
+            </div>
+            <br>
+
+            <div>
+                <label>First Name:</label><br>
+                <input type="text" name="first_name" required>
+            </div>
+            <br>
+
+            <div>
+                <label>Last Name:</label><br>
+                <input type="text" name="last_name" required>
+            </div>
+            <br>
+
+            <button type="submit">Create Student Profile</button>
+        </form>
+
+  <script>
         const dropdown = document.getElementById('programmeSelect');
         const tableBody = document.getElementById('studentTableBody');
 
@@ -68,12 +108,12 @@
                 return;
             }
 
-
             tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><strong>Loading student data...</strong></td></tr>';
 
             try {
                 const response = await fetch('/officer/api/students/' + programmeId);
                 const students = await response.json();
+                
                 if (students.error) {
                     tableBody.innerHTML = `<tr><td colspan="5" style="color: red;">Error: ${students.error}</td></tr>`;
                     return;
@@ -92,12 +132,19 @@
                             <td>${student.first_name}</td>
                             <td>${student.last_name}</td>
                             <td><strong>${student.calculated_classification || 'Pending'}</strong></td>
-                           <td>
-        <a href="/officer/review/${student.student_id}">
-            <button style="cursor: pointer;">Review Grades</button>
-        </a>
-    </td>
-                        </tr>
+                            
+                            <td>
+                                <a href="/officer/review/${student.student_id}">
+                                    <button style="cursor: pointer;">Review Grades</button>
+                                </a>
+
+                                <form action="/officer/delete-student/${student.student_id}" method="POST" style="display: inline;">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to permanently delete this student?');" style="cursor: pointer; color: red;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                            </tr>
                     `;
                 });
 
@@ -107,7 +154,6 @@
                 tableBody.innerHTML = '<tr><td colspan="5" style="color: red;">A network error occurred while loading data.</td></tr>';
             }
         });
-
     </script>
 
 

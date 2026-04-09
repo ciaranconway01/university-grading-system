@@ -141,7 +141,52 @@ router.post('/override/:student_id', async (req, res) => {
     }
 });
 
+router.post('/add-student', async (req, res) => {
 
+    if (!req.session.isLoggedIn || req.session.role !== 'classification_officer') {
+        return res.redirect('/');
+    }
 
+    try {
+        const progId = req.body.programme_id;
+        const studentNum = req.body.student_number;
+        const fName = req.body.first_name;
+        const lName = req.body.last_name;
+
+        const insertSql = `
+            INSERT INTO students (student_number, first_name, last_name, programme_id, calculated_classification) 
+            VALUES (?, ?, ?, ?, 'Pending')
+        `;
+
+await connection.promise().query(insertSql, [studentNum, fName, lName, progId]);
+
+res.redirect('/officer');
+
+    } catch (error) {
+        console.error("Error adding student:", error);
+        res.status(500).send("Database Error while creating student.");
+    }
+});
+
+router.post('/delete-student/:student_id', async (req, res) => {
+
+    if (!req.session.isLoggedIn || req.session.role !== 'classification_officer') {
+        return res.redirect('/');
+    }
+
+    try {
+        const studentId = req.params.student_id;
+
+        await connection.promise().query('DELETE FROM module_results WHERE student_id = ?', [studentId]);
+
+        await connection.promise().query('DELETE FROM students WHERE student_id = ?', [studentId]);
+
+        res.redirect('/officer');
+
+} catch (error) {
+        console.error("Error deleting student:", error);
+        res.status(500).send("Error");
+    }
+});
 
 export default router;
