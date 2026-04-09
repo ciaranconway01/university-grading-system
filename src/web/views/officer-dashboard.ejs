@@ -8,10 +8,10 @@
 </head>
 
 <body>
-    <h2> HeDClass - Classification Officer</h2>
+    <h2>HeDClass - Classification Officer</h2>
     <nav>
         User: <%= username %> | Role = Classification Officer |
-            <a href='/logout'> Log Out</a>
+        <a href='/logout'>Log Out</a>
     </nav>
     <hr>
 
@@ -27,7 +27,7 @@
                     <option value="<%= prog.programme_id %>">
                         <%= prog.name %>
                     </option>
-                    <% }); %>
+                <% }); %>
             </select>
         </div>
 
@@ -35,6 +35,11 @@
 
         <h3>2. Cohort Data Management</h3>
         <p>Current list of students for the selected programme.</p>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <div style="max-width: 600px; margin: 20px 0;">
+            <canvas id="classificationChart"></canvas>
+        </div>
 
         <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; text-align: left;">
             <thead>
@@ -58,50 +63,56 @@
 
     <hr>
 
-        <h3>3. Enroll New Candidate</h3>
-        <p>Manually add a new student to an assigned cohort.</p>
-        
-        <form action="/officer/add-student" method="POST">
-            <div>
-                <label>Select Programme:</label><br>
-                <select name="programme_id" required>
-                    <option value="">-- Choose Programme --</option>
-                    <% programmes.forEach(function(prog) { %>
-                        <option value="<%= prog.programme_id %>">
-                            <%= prog.name %>
-                        </option>
-                    <% }); %>
-                </select>
-            </div>
-            <br>
+    <h3>3. Enroll New Candidate</h3>
+    <p>Manually add a new student to an assigned cohort.</p>
 
-            <div>
-                <label>Student Number:</label><br>
-                <input type="text" name="student_number" required>
-            </div>
-            <br>
+    <form action="/officer/add-student" method="POST">
+        <div>
+            <label>Select Programme:</label><br>
+            <select name="programme_id" required>
+                <option value="">-- Choose Programme --</option>
+                <% programmes.forEach(function(prog) { %>
+                    <option value="<%= prog.programme_id %>">
+                        <%= prog.name %>
+                    </option>
+                <% }); %>
+            </select>
+        </div>
+        <br>
 
-            <div>
-                <label>First Name:</label><br>
-                <input type="text" name="first_name" required>
-            </div>
-            <br>
+        <div>
+            <label>Student Number:</label><br>
+            <input type="text" name="student_number" required>
+        </div>
+        <br>
 
-            <div>
-                <label>Last Name:</label><br>
-                <input type="text" name="last_name" required>
-            </div>
-            <br>
+        <div>
+            <label>First Name:</label><br>
+            <input type="text" name="first_name" required>
+        </div>
+        <br>
 
-            <button type="submit">Create Student Profile</button>
-        </form>
+        <div>
+            <label>Last Name:</label><br>
+            <input type="text" name="last_name" required>
+        </div>
+        <br>
 
-  <script>
+        <button type="submit">Create Student Profile</button>
+    </form>
+
+    <script>
         const dropdown = document.getElementById('programmeSelect');
         const tableBody = document.getElementById('studentTableBody');
+        
+        let myChart = null;
 
         dropdown.addEventListener('change', async function () {
             const programmeId = this.value;
+
+            if (myChart) {
+                myChart.destroy();
+            }
 
             if (!programmeId) {
                 tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: gray;"><em>Please select a programme from the dropdown above to load candidates.</em></td></tr>';
@@ -113,7 +124,7 @@
             try {
                 const response = await fetch('/officer/api/students/' + programmeId);
                 const students = await response.json();
-                
+
                 if (students.error) {
                     tableBody.innerHTML = `<tr><td colspan="5" style="color: red;">Error: ${students.error}</td></tr>`;
                     return;
@@ -125,39 +136,60 @@
                 }
 
                 let htmlRows = '';
+                let counts = {};
+
                 students.forEach(student => {
+                    const finalClassification = student.manual_override_classification || student.calculated_classification || 'Pending';
+                    counts[finalClassification] = (counts[finalClassification] || 0) + 1;
+
                     htmlRows += `
                         <tr>
                             <td>${student.student_number}</td>
                             <td>${student.first_name}</td>
                             <td>${student.last_name}</td>
-                            <td><strong>${student.calculated_classification || 'Pending'}</strong></td>
-                            
+                            <td><strong>${finalClassification}</strong></td>
                             <td>
                                 <a href="/officer/review/${student.student_id}">
                                     <button style="cursor: pointer;">Review Grades</button>
                                 </a>
-
                                 <form action="/officer/delete-student/${student.student_id}" method="POST" style="display: inline;">
                                     <button type="submit" onclick="return confirm('Are you sure you want to permanently delete this student?');" style="cursor: pointer; color: red;">
                                         Delete
                                     </button>
                                 </form>
                             </td>
-                            </tr>
+                        </tr>
                     `;
                 });
 
                 tableBody.innerHTML = htmlRows;
+
+                const ctx = document.getElementById('classificationChart');
+                const chartLabels = Object.keys(counts);
+                const chartData = Object.values(counts);
+
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Number of Students',
+                            data: chartData,
+                            backgroundColor: ['#4CAF50', '#2196F3', '#FFEB3B', '#FF9800', '#9E9E9E', '#F44336'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        indexAxis: 'y'
+                    }
+                });
+
             } catch (error) {
                 console.error("API Fetch Error:", error);
                 tableBody.innerHTML = '<tr><td colspan="5" style="color: red;">A network error occurred while loading data.</td></tr>';
             }
         });
     </script>
-
-
-
 </body>
-
 </html>

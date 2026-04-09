@@ -63,6 +63,48 @@
             </tbody>
         </table>
 
+        <div style="margin-top: 20px; padding: 15px; border: 1px dashed #ccc;">
+            <h4>+ Add Module Result</h4>
+            <form action="/officer/add-grade/<%= student.student_id %>" method="POST">
+                
+                <div style="margin-bottom: 10px;">
+                    <label>Academic Year:</label>
+                    <select name="academic_year" required>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <label>Module Name:</label>
+                    <input type="text" name="module_name" required>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <label>Credits:</label>
+                    <select name="credits" required>
+                        <option value="20">20</option>
+                        <option value="40">40 (Dissertation/Project)</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label>Raw Mark (0-100):</label>
+                    <input type="number" name="mark" min="0" max="100" required style="width: 60px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Is this a Resit?</label>
+                    <select name="is_resit">
+                        <option value="0">No</option>
+                        <option value="1">Yes (Will be capped at 40)</option>
+                    </select>
+                </div>
+
+                <button type="submit">Save Grade</button>
+            </form>
+        </div>
+        
         <br>
         
         <div style="border: 2px solid #0056b3; padding: 15px; background-color: #e6f2ff;">

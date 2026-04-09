@@ -52,7 +52,7 @@ router.get('/api/students/:programme_id', async (req, res) => {
 });
 
 router.get('/review/:student_id', async (req, res) => {
-    
+
     if (!req.session.isLoggedIn || req.session.role !== 'classification_officer') {
         return res.redirect('/');
     }
@@ -66,7 +66,7 @@ router.get('/review/:student_id', async (req, res) => {
             WHERE s.student_id = ?
         `;
         const [studentData] = await connection.promise().query(studentSql, [studentId]);
-        
+
         if (studentData.length === 0) return res.status(404).send("Student not found");
         const student = studentData[0];
 
@@ -76,7 +76,8 @@ router.get('/review/:student_id', async (req, res) => {
         let y2TotalMarks = 0, y2TotalCredits = 0;
         let y3TotalMarks = 0, y3TotalCredits = 0;
 
-        marks.forEach(module => {let finalMark = module.is_resit ? Math.min(module.mark, 40) : module.mark;
+        marks.forEach(module => {
+            let finalMark = module.is_resit ? Math.min(module.mark, 40) : module.mark;
 
             if (module.academic_year === 2) {
                 y2TotalMarks += (finalMark * module.credits);
@@ -92,13 +93,21 @@ router.get('/review/:student_id', async (req, res) => {
 
         let finalScore = (y2Avg * parseFloat(student.y2_weighting)) + (y3Avg * parseFloat(student.y3_weighting));
 
-let proposedClass = "Fail";
-        if (finalScore >= 70) proposedClass = "First Class Honours (1st)";
-        else if (finalScore >= 60) proposedClass = "Upper Second Class (2:1)";
-        else if (finalScore >= 50) proposedClass = "Lower Second Class (2:2)";
-        else if (finalScore >= 40) proposedClass = "Third Class Honours";
+        let proposedClass = "Fail";
+        if (y2TotalCredits < 120 || y3TotalCredits < 120) {
+            proposedClass = "Not Eligible (Missing Credits)";
+            finalScore = 0;
+        } else {
+            if (finalScore >= 70) proposedClass = "First Class Honours (1st)";
+            else if (finalScore >= 60) proposedClass = "Upper Second Class (2:1)";
+            else if (finalScore >= 50) proposedClass = "Lower Second Class (2:2)";
+            else if (finalScore >= 40) proposedClass = "Third Class Honours";
 
-        if (marks.length === 0) proposedClass = "Pending";
+        }
+        if (marks.length === 0) {
+            proposedClass = "Pending";
+            finalScore = 0;
+        }
 
         res.render('review', {
             username: req.session.username,
@@ -110,7 +119,7 @@ let proposedClass = "Fail";
             proposedClass: proposedClass
         });
 
-        } catch (error) {
+    } catch (error) {
         console.error(error);
         res.status(500).send("Error");
     }
@@ -158,9 +167,9 @@ router.post('/add-student', async (req, res) => {
             VALUES (?, ?, ?, ?, 'Pending')
         `;
 
-await connection.promise().query(insertSql, [studentNum, fName, lName, progId]);
+        await connection.promise().query(insertSql, [studentNum, fName, lName, progId]);
 
-res.redirect('/officer');
+        res.redirect('/officer');
 
     } catch (error) {
         console.error("Error adding student:", error);
@@ -183,10 +192,53 @@ router.post('/delete-student/:student_id', async (req, res) => {
 
         res.redirect('/officer');
 
-} catch (error) {
+    } catch (error) {
         console.error("Error deleting student:", error);
         res.status(500).send("Error");
     }
 });
+
+router.post('/add-grade/:student_id', async (req, res) => {
+    if (!req.session.isLoggedIn || req.session.role !== 'classification_officer') {
+        return res.redirect('/');
+    }
+
+    try {
+        const studentId = req.params.student_id;
+        const year = req.body.academic_year;
+        const moduleName = req.body.module_name;
+        const credits = req.body.credits;
+        const mark = req.body.mark;
+        const isResit = req.body.is_resit;
+
+        const checkSql = `SELECT * FROM module_results WHERE student_id = ? AND module_name = ?`;
+        const [existing] = await connection.promise().query(checkSql, [studentId, moduleName]);
+
+        if (existing.length > 0) {
+
+            const updateSql = `
+                UPDATE module_results 
+                SET mark = ?, credits = ?, is_resit = ?, academic_year = ?
+                WHERE student_id = ? AND module_name = ?
+            `;
+            await connection.promise().query(updateSql, [mark, credits, isResit, year, studentId, moduleName]);
+        } else {
+
+            const insertSql = `
+                INSERT INTO module_results (student_id, module_name, academic_year, credits, mark, is_resit) 
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+            await connection.promise().query(insertSql, [studentId, moduleName, year, credits, mark, isResit]);
+        }
+
+        res.redirect('/officer/review/' + studentId);
+
+    } catch (error) {
+        console.error("Error saving/updating grade:", error);
+        res.status(500).send("Database Error.");
+    }
+});
+
+
 
 export default router;
