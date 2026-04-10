@@ -3,36 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Review</title>
 </head>
-<body>
-    <h2>HeDClass - Candidate Review</h2>
-    <nav>
-        User: <%= username %> | Role = Classification Officer |
-        <a href='/officer'>Back to Dashboard</a> |
-        <a href='/logout'>Log Out</a>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark px-4 mb-4 shadow">
+        <span class="navbar-brand mb-0 h1">HeDClass - Candidate Review</span>
+        <div class="text-white align-items-center d-flex">
+            <span class="me-3">User: <%= username %></span>
+            <a href='/officer' class="btn btn-outline-info btn-sm me-2">Back to Dashboard</a>
+            <a href='/logout' class="btn btn-outline-light btn-sm">Log Out</a>
+        </div>
     </nav>
-    <hr>
 
-    <main>
-        <div style="background-color: #f9f9f9; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
-            <h3>Candidate Profile: <%= student.first_name %> <%= student.last_name %> (<%= student.student_number %>)</h3>
-            <p><strong>Programme:</strong> <%= student.programme_name %></p>
-            <p><strong>Programme Weighting:</strong> Year 2 (<%= Math.round(student.y2_weighting * 100) %>%) / Year 3 (<%= Math.round(student.y3_weighting * 100) %>%)</p>
-        <% if (student.manual_override_classification) { %>
-                <br>
-                <div>
-                    <strong> OVERRIDE APPLIED: <%= student.manual_override_classification %> </strong><br>
-                    <strong>Rationale:</strong> <em>"<%= student.decision_rationale %>"</em>
-                </div>
-            <% } %>
-        
+    <main class="container mt-4 mb-5">
+       <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h4 class="card-title text-primary">Candidate Profile: <%= student.first_name %> <%= student.last_name %> (<%= student.student_number %>)</h4>
+                <p class="mb-1"><strong>Programme:</strong> <%= student.programme_name %></p>
+                <p class="mb-0"><strong>Programme Weighting:</strong> Year 2 (<%= Math.round(student.y2_weighting * 100) %>%) / Year 3 (<%= Math.round(student.y3_weighting * 100) %>%)</p>
+                
+                <% if (student.manual_override_classification) { %>
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <strong>OVERRIDE APPLIED:</strong> <%= student.manual_override_classification %><br>
+                        <strong>Rationale:</strong> <em>"<%= student.decision_rationale %>"</em>
+                    </div>
+                <% } %>
+            </div>
         </div>
 
         <h3>Academic Record</h3>
-        <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="background-color: #f2f2f2;">
+        <table class="table table-hover table-bordered bg-white shadow-sm align-middle mb-4">
+            <thead class="table-light">
+                <tr>
                     <th>Academic Year</th>
                     <th>Module Name</th>
                     <th>Credits</th>
@@ -41,6 +44,8 @@
                     <th>Effective Mark (Capped at 40)</th>
                 </tr>
             </thead>
+
+
             <tbody>
                 <% if (marks.length > 0) { %>
                     <% marks.forEach(function(m) { %>
@@ -63,58 +68,59 @@
             </tbody>
         </table>
 
-        <div style="margin-top: 20px; padding: 15px; border: 1px dashed #ccc;">
-            <h4>+ Add Module Result</h4>
-            <form action="/officer/add-grade/<%= student.student_id %>" method="POST">
-                
-                <div style="margin-bottom: 10px;">
-                    <label>Academic Year:</label>
-                    <select name="academic_year" required>
-                        <option value="2">Year 2</option>
-                        <option value="3">Year 3</option>
-                    </select>
-                </div>
-                
-                <div style="margin-bottom: 10px;">
-                    <label>Module Name:</label>
-                    <input type="text" name="module_name" required>
-                </div>
-                
-                <div style="margin-bottom: 10px;">
-                    <label>Credits:</label>
-                    <select name="credits" required>
-                        <option value="20">20</option>
-                        <option value="40">40 (Dissertation/Project)</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom: 10px;">
-                    <label>Raw Mark (0-100):</label>
-                    <input type="number" name="mark" min="0" max="100" required style="width: 60px;">
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <label>Is this a Resit?</label>
-                    <select name="is_resit">
-                        <option value="0">No</option>
-                        <option value="1">Yes (Will be capped at 40)</option>
-                    </select>
-                </div>
-
-                <button type="submit">Save Grade</button>
-            </form>
+      <div class="card shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">+ Add Module Result</h5>
+            </div>
+            <div class="card-body">
+                <form action="/officer/add-grade/<%= student.student_id %>" method="POST" class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Academic Year:</label>
+                        <select name="academic_year" class="form-select" required>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Module Name:</label>
+                        <input type="text" name="module_name" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Credits:</label>
+                        <select name="credits" class="form-select" required>
+                            <option value="20">20</option>
+                            <option value="40">40 (Project)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label fw-bold">Mark:</label>
+                        <input type="number" name="mark" min="0" max="100" class="form-control" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Resit?</label>
+                        <select name="is_resit" class="form-select">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">Save Grade</button>
+                    </div>
+                </form>
+            </div>
         </div>
         
         <br>
         
-        <div style="border: 2px solid #0056b3; padding: 15px; background-color: #e6f2ff;">
-            <h3 style="margin-top: 0; color: #0056b3;">System Calculated Outcome</h3>
-            <ul>
+       <div class="alert alert-info shadow-sm mb-4">
+            <h4 class="alert-heading">System Calculated Outcome</h4>
+            <hr>
+            <ul class="mb-2">
                 <li><strong>Year 2 Average:</strong> <%= y2Avg %>%</li>
                 <li><strong>Year 3 Average:</strong> <%= y3Avg %>%</li>
                 <li><strong>Final Weighted Score:</strong> <%= finalScore %>%</li>
             </ul>
-            <h2 style="color: #0056b3;">Proposed Classification: <%= proposedClass %></h2>
+            <h3 class="text-primary mt-3">Proposed Classification: <%= proposedClass %></h3>
         </div>
 
         <hr>
@@ -122,11 +128,10 @@
         <h3>Manual Override & Decision Rationale</h3>
         <p>Use this form to override the system's proposed classification due to extenuating circumstances or missing data.</p>
         
-        <form action="/officer/override/<%= student.student_id %>" method="POST">
-            
-            <div>
-                <label>Override Classification To:</label><br>
-                <select name="override_classification" required>
+        <form action="/officer/override/<%= student.student_id %>" method="POST" class="card shadow-sm p-4">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Override Classification To:</label>
+                <select name="override_classification" class="form-select border-warning" required>
                     <option value="">-- Select New Classification --</option>
                     <option value="First Class Honours (1st)">First Class Honours (1st)</option>
                     <option value="Upper Second Class (2:1)">Upper Second Class (2:1)</option>
@@ -136,16 +141,15 @@
                     <option value="Fail">Fail</option>
                 </select>
             </div>
-            <br>
 
-            <div>
-                <label>Decision Rationale (Required):</label><br>
-                <textarea name="rationale" rows="4" cols="50"></textarea>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Decision Rationale (Required):</label>
+                <textarea name="rationale" class="form-control" rows="3" required></textarea>
             </div>
-            <br>
 
-            <button type="submit">Submit Manual Override</button>
+            <button type="submit" class="btn btn-warning fw-bold">Submit Manual Override</button>
         </form>
+
     </main>
 </body>
 </html>
