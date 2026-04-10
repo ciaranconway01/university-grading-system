@@ -5,29 +5,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classification Officer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+
 </head>
 
-<body>
+<body class="bg-light">
     <h2>HeDClass - Classification Officer</h2>
-    <nav>
-        User: <%= username %> | Role = Classification Officer |
-        <a href='/logout'>Log Out</a>
+    <nav class="navbar navbar-dark bg-dark px-4 mb-4 shadow">
+        <span class="navbar-brand mb-0 h1">HeDClass - Classification Officer</span>
+        <div class="text-white align-items-center d-flex">
+            <span class="me-3">User: <%= username %> | Role: Officer</span>
+            <a href='/logout' class="btn btn-outline-light btn-sm">Log Out</a>
+        </div>
     </nav>
     <hr>
 
-    <main>
+    <main class="container mt-5 mb-5">
         <h3>1. Select Cohort</h3>
         <p>Choose an assigned programme to view.</p>
 
         <div>
             <label>Select Programme:</label><br>
-            <select id="programmeSelect" style="padding: 5px; font-size: 16px;">
+            <select id="programmeSelect" class="form-select border-primary w-50">
                 <option value="">-- Choose a Programme --</option>
                 <% programmes.forEach(function(prog) { %>
                     <option value="<%= prog.programme_id %>">
                         <%= prog.name %>
                     </option>
-                <% }); %>
+                    <% }); %>
             </select>
         </div>
 
@@ -41,8 +48,8 @@
             <canvas id="classificationChart"></canvas>
         </div>
 
-        <table border="1" cellpadding="10" style="width:100%; border-collapse: collapse; text-align: left;">
-            <thead>
+        <table class="table table-hover table-bordered bg-white shadow-sm align-middle">
+            <thead class="table-light">
                 <tr style="background-color: #f2f2f2;">
                     <th>Student No.</th>
                     <th>First Name</th>
@@ -59,7 +66,7 @@
                 </tr>
             </tbody>
         </table>
-    </main>
+  
 
     <hr>
 
@@ -69,42 +76,41 @@
     <form action="/officer/add-student" method="POST">
         <div>
             <label>Select Programme:</label><br>
-            <select name="programme_id" required>
+            <select name="programme_id" class="form-select mb-3" required>
                 <option value="">-- Choose Programme --</option>
                 <% programmes.forEach(function(prog) { %>
                     <option value="<%= prog.programme_id %>">
                         <%= prog.name %>
                     </option>
-                <% }); %>
+                    <% }); %>
             </select>
         </div>
         <br>
 
         <div>
-            <label>Student Number:</label><br>
-            <input type="text" name="student_number" required>
+            <label class="form-label fw-bold">Student Number:</label>
+            <input type="text" name="student_number" class="form-control mb-3" required>
         </div>
-        <br>
 
         <div>
-            <label>First Name:</label><br>
-            <input type="text" name="first_name" required>
+            <label class="form-label fw-bold">First Name:</label>
+            <input type="text" name="first_name" class="form-control mb-3" required>
         </div>
-        <br>
 
         <div>
-            <label>Last Name:</label><br>
-            <input type="text" name="last_name" required>
+            <label class="form-label fw-bold">Last Name:</label>
+            <input type="text" name="last_name" class="form-control mb-3" required>
         </div>
         <br>
 
-        <button type="submit">Create Student Profile</button>
+        <button type="submit" class="btn btn-success mt-2">Create Student Profile</button>
     </form>
+</main>
 
     <script>
         const dropdown = document.getElementById('programmeSelect');
         const tableBody = document.getElementById('studentTableBody');
-        
+
         let myChart = null;
 
         dropdown.addEventListener('change', async function () {
@@ -149,17 +155,19 @@
                             <td>${student.last_name}</td>
                             <td><strong>${finalClassification}</strong></td>
                             <td>
-                                <a href="/officer/review/${student.student_id}">
-                                    <button style="cursor: pointer;">Review Grades</button>
+                                <a href="/officer/review/${student.student_id}" class="btn btn-sm btn-outline-primary me-2">
+                                    Review Grades
                                 </a>
-                                <form action="/officer/delete-student/${student.student_id}" method="POST" style="display: inline;">
-                                    <button type="submit" onclick="return confirm('Are you sure you want to permanently delete this student?');" style="cursor: pointer; color: red;">
+                                
+                                <form action="/officer/delete-student/${student.student_id}" method="POST" class="d-inline">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to permanently delete this student?');" class="btn btn-sm btn-outline-danger">
                                         Delete
                                     </button>
                                 </form>
                             </td>
                         </tr>
                     `;
+                    
                 });
 
                 tableBody.innerHTML = htmlRows;
@@ -192,4 +200,5 @@
         });
     </script>
 </body>
+
 </html>

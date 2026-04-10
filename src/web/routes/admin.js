@@ -4,6 +4,8 @@ import connection from '../db.js'
 
 const router = express.Router();
 
+// Must be logged in as a registry admin to work
+
 router.get('/', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
@@ -12,6 +14,8 @@ router.get('/', async (req, res) => {
         const [programmes] = await connection.promise().query('SELECT * FROM programmes');
         const [officers] = await connection.promise().query('SELECT user_id, username FROM users WHERE role = "classification_officer"');
 
+
+        // Order by ascending
         const joinSql = `
             SELECT 
                 p.name AS programme_name, 
@@ -21,8 +25,9 @@ router.get('/', async (req, res) => {
             FROM programmes p
             LEFT JOIN officer_assignments oa ON p.programme_id = oa.programme_id
             LEFT JOIN users u ON oa.user_id = u.user_id
-            ORDER BY SUBSTRING(p.name, LOCATE(' ', p.name) + 1) ASC
+            ORDER BY SUBSTRING(p.name, LOCATE(' ', p.name) + 1) ASC  
         `;
+
         const [programmeRegister] = await connection.promise().query(joinSql);
 
         res.render('admin-dashboard', {

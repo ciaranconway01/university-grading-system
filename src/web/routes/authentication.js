@@ -5,10 +5,16 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
     if (req.session.isLoggedIn) {
-        res.render('dashboard', {
+  if (req.session.role === 'registry_admin') {
+            return res.redirect('/admin');
+        } else if (req.session.role === 'classification_officer') {
+            return res.redirect('/officer');
+        }
+   res.render('dashboard', {
             username: req.session.username,
             role: req.session.role
         });
+   
     } else {
         res.render('login')
     }
@@ -36,7 +42,13 @@ router.post('/login', async (req, res) => {
             req.session.user_id = user.user_id;
 
 
-            res.redirect('/');
+            if (user.role === 'registry_admin') {
+                return res.redirect('/admin');
+            } else if (user.role === 'classification_officer') {
+                return res.redirect('/officer');
+            } else {
+                return res.redirect('/'); // Safety fallback
+            }
         } else {
             res.render('login', { error: "Invalid username or password." })
         };

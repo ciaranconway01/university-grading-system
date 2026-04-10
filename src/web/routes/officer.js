@@ -234,7 +234,7 @@ router.post('/add-grade/:student_id', async (req, res) => {
         res.redirect('/officer/review/' + studentId);
 
     } catch (error) {
-        console.error("Error saving/updating grade:", error);
+        console.error("Error saving or updating grade:", error);
         res.status(500).send("Database Error.");
     }
 });
