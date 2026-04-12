@@ -11,11 +11,14 @@ router.get('/', async (req, res) => {
         return res.redirect('/');
     }
     try {
+        // Fetches base data for the dropdown menus
         const [programmes] = await connection.promise().query('SELECT * FROM programmes');
         const [officers] = await connection.promise().query('SELECT user_id, username FROM users WHERE role = "classification_officer"');
 
 
         // Order by ascending
+        // Used a LEFT JOIN from 'programmes' so that every degre is listed
+
         const joinSql = `
             SELECT 
                 p.name AS programme_name, 
@@ -42,7 +45,7 @@ router.get('/', async (req, res) => {
         res.status(500).send("Database Error");
     }
 });
-
+// Create classification officer
 router.post('/add-officer', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
@@ -54,11 +57,12 @@ router.post('/add-officer', async (req, res) => {
     const role = 'classification_officer';
 
     try {
+        // Insert the new user into the datbaase
         const userSql = `INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)`;
         const [result] = await connection.promise().query(userSql, [newUsername, newPassword, role]);
-
+// Retrieves the primary key - grabs the newly generated auto-incremented ID
         const newUserId = result.insertId;
-
+// Immediately assigns them to a programme using the junction table
         const assignmentSql = `INSERT INTO officer_assignments (user_id, programme_id) VALUES (?, ?)`;
         await connection.promise().query(assignmentSql, [newUserId, programmeId]);
 
@@ -70,7 +74,7 @@ router.post('/add-officer', async (req, res) => {
     }
 
 });
-
+// Assigns existing officer to another programme
 router.post('/assign-officer', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
@@ -80,6 +84,7 @@ router.post('/assign-officer', async (req, res) => {
     const programmeId = req.body.programme_id;
 
     try {
+        // Populates the "many-to-many" junction table
         const sql = `INSERT INTO officer_assignments (user_id, programme_id) VALUES (?, ?)`;
         await connection.promise().query(sql, [userId, programmeId]);
 
@@ -91,7 +96,7 @@ router.post('/assign-officer', async (req, res) => {
     }
 });
 
-
+// Creates new programme
 router.post('/add-programme', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
@@ -103,8 +108,10 @@ router.post('/add-programme', async (req, res) => {
     const y2Weighting = parseFloat(req.body.y2_weighting);
     const y3Weighting = parseFloat(req.body.y3_weighting);
 
-    const totalWeight = Math.round((y2Weighting + y3Weighting) * 100) / 100;
 
+     // Multiply by 100, round it to ensure clean decimal
+    const totalWeight = Math.round((y2Weighting + y3Weighting) * 100) / 100;
+// This rejects the weights if they do not strictly equal 1.0
     if (totalWeight !== 1.0) {
         return res.status(400).send(
             ` <h2> Programme Error </h2>
@@ -124,7 +131,7 @@ router.post('/add-programme', async (req, res) => {
         res.status(500).send("Database Error: Was not able to save the new programme.");
     }
 });
-
+// Update programme weightings
 router.post('/update-programme', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
@@ -150,9 +157,7 @@ router.post('/update-programme', async (req, res) => {
     }
 });
 
-
-
-
+// Delete programme
 router.post('/delete-programme', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
@@ -161,9 +166,11 @@ router.post('/delete-programme', async (req, res) => {
     const programmeId = req.body.programme_id;
 
     try {
+
+        // Must delete assignments from the junction table first
         const deleteAssignmentsSql = `DELETE FROM officer_assignments WHERE programme_id = ?`;
         await connection.promise().query(deleteAssignmentsSql, [programmeId]);
-
+// Once relationships are split or severed, safely delete the programme
         const deleteProgrammeSql = `DELETE FROM programmes WHERE programme_id = ?`;
         await connection.promise().query(deleteProgrammeSql, [programmeId]);
 
@@ -174,7 +181,7 @@ router.post('/delete-programme', async (req, res) => {
         res.status(500).send("Database Error: Could not delete the programme.");
     }
 });
-
+// Delete classification officer
 router.post('/delete-officer', async (req, res) => {
     if (!req.session.isLoggedIn || req.session.role !== 'registry_admin') {
         return res.redirect('/');
@@ -186,6 +193,7 @@ router.post('/delete-officer', async (req, res) => {
         const deleteAssignmentsSql = `DELETE FROM officer_assignments WHERE user_id = ?`;
         await connection.promise().query(deleteAssignmentsSql, [userId]);
 
+        // Registry administrator cannot delete another administrator account's role 
         const deleteUserSql = `DELETE FROM users WHERE user_id = ? AND role = 'classification_officer'`;
         await connection.promise().query(deleteUserSql, [userId]);
 

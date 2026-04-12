@@ -4,12 +4,16 @@ import connection from '../db.js'
 const router = express.Router();
 
 router.get('/', (req, res) => {
+    // This checks if a valid session currently exists
     if (req.session.isLoggedIn) {
+
+        // Role-based-access control - directing traffic based on the user's role
   if (req.session.role === 'registry_admin') {
             return res.redirect('/admin');
         } else if (req.session.role === 'classification_officer') {
             return res.redirect('/officer');
         }
+// Fallback incase a role is missing
    res.render('dashboard', {
             username: req.session.username,
             role: req.session.role
@@ -41,7 +45,7 @@ router.post('/login', async (req, res) => {
             req.session.role = user.role;
             req.session.user_id = user.user_id;
 
-
+// redirects immediately after a successful state change
             if (user.role === 'registry_admin') {
                 return res.redirect('/admin');
             } else if (user.role === 'classification_officer') {
@@ -49,6 +53,7 @@ router.post('/login', async (req, res) => {
             } else {
                 return res.redirect('/'); // Safety fallback
             }
+
         } else {
             res.render('login', { error: "Invalid username or password." })
         };
@@ -62,6 +67,7 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
+    // safely wipes all user data from the server's session memory
     req.session.destroy((err) => {
         if (err) {
             console.error("Logout error:", err);

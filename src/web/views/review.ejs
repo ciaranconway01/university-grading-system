@@ -19,13 +19,13 @@
     <main class="container mt-4 mb-5">
        <div class="card shadow-sm mb-4">
             <div class="card-body">
-                <h4 class="card-title text-primary">Candidate Profile: <%= student.first_name %> <%= student.last_name %> (<%= student.student_number %>)</h4>
+                <h4 class="card-title text-primary">Student Profile: <%= student.first_name %> <%= student.last_name %> (<%= student.student_number %>)</h4>
                 <p class="mb-1"><strong>Programme:</strong> <%= student.programme_name %></p>
                 <p class="mb-0"><strong>Programme Weighting:</strong> Year 2 (<%= Math.round(student.y2_weighting * 100) %>%) / Year 3 (<%= Math.round(student.y3_weighting * 100) %>%)</p>
                 
                 <% if (student.manual_override_classification) { %>
                     <div class="alert alert-warning mt-3 mb-0">
-                        <strong>OVERRIDE APPLIED:</strong> <%= student.manual_override_classification %><br>
+                        <strong>Override Applied:</strong> <%= student.manual_override_classification %><br>
                         <strong>Rationale:</strong> <em>"<%= student.decision_rationale %>"</em>
                     </div>
                 <% } %>
